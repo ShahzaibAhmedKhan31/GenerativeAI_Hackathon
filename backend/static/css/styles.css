@@ -1,0 +1,104 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #001f3f;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    margin-top: -70px;
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.options {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.option {
+    background-color: #012b50;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 150px;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+/* Option hover effect */
+.option:hover {
+    transform: scale(1.1);
+}
+
+/* Style when option is selected */
+.option.selected {
+    background-color: #5a9db9; /* Change to any color you prefer */
+    color: #fff; /* Optional, ensures text is visible */
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+    background-size: contain;
+}
+
+.cta-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cta-button:hover {
+    background-color: #0056b3;
+}
+
+header {
+    background-color: #001f3f;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+header .logo {
+    text-align: center;
+}
+
+header .logo h1 {
+    font-size: 3rem;
+    color: #38bdf8; /* Light Blue */
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+header .logo h1 span {
+    color: #facc15; /* Golden Yellow */
+    font-weight: 700;
+    font-style: italic;
+}
