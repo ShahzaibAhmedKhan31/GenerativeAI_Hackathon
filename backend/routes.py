@@ -49,7 +49,27 @@ REDIRECT_URI = 'http://localhost:8000/auth'  # Updated port to 8000 for FastAPI
 @recommend_router.get("/home")
 async def frontend(request: Request, access_token: str = None, id_token: str = None):
     # Pass the token to the frontend template
-    return templates.TemplateResponse("index.html", {"request": request, "access_token": access_token, "id_token": id_token})
+    return templates.TemplateResponse("home.html", {"request": request, "access_token": access_token, "id_token": id_token})
+
+@recommend_router.get("/index")
+async def index(request: Request):
+    # Pass the token to the frontend template
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@recommend_router.get("/navbar")
+async def navbar(request: Request):
+    # Pass the token to the frontend template
+    return templates.TemplateResponse("navbar.html", {"request": request})
+
+@recommend_router.get("/all-upcoming-events")
+async def allupcomming(request: Request):
+    # Pass the token to the frontend template
+    return templates.TemplateResponse("all-upcoming-events.html", {"request": request})
+
+@recommend_router.get("/view-profile")
+async def viewprofile(request: Request):
+    # Pass the token to the frontend template
+    return templates.TemplateResponse("view-profile.html", {"request": request})
 
 @recommend_router.get("/")
 async def home():
@@ -84,3 +104,19 @@ async def auth(request: Request, code: str):
         return RedirectResponse(f'http://localhost:8000/home?access_token={access_token}&id_token={id_token}')
     else:
         raise HTTPException(status_code=400, detail="Failed to exchange authorization code for access token")
+
+
+@recommend_router.get("/events")
+async def get_upcoming_events():
+    try:
+        # Load biking events
+        biking_events = load_biking_events()
+
+        return biking_events
+
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=500, detail="Biking events data file not found.")
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail="Error decoding JSON from biking events data.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")

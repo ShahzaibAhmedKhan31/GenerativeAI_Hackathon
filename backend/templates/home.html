@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riding Preferences</title>
+  <script>
+calendarData = []
+const selectedOptions = []; 
+latitude = ""
+longitude = ""
+document.addEventListener("DOMContentLoaded", function() {
+    
+    const accessToken = "{{ access_token }}";
+    const idToken = "{{ id_token }}"
+    console.log(idToken)
+
+    if (accessToken) {
+        console.log("Access Token: " + accessToken);
+        fetchCalendarData(accessToken);
+
+    } else {
+        console.log("No access token available.");
+    }
+
+    getUserLocation();
+
+     // Array to store selected options
+
+    function toggleSelection(event) {
+        const selectedOption = event.target;
+
+        // Check if the clicked item is an option and not already selected
+        if (selectedOption.classList.contains("option")) {
+            const sectionId = selectedOption.closest('.section').id;
+
+            // Remove 'selected' class from all options in the same section
+            const options = document.querySelectorAll(`#${sectionId} .option`);
+            options.forEach(option => option.classList.remove("selected"));
+
+            // Add 'selected' class to the clicked option
+            selectedOption.classList.add("selected");
+
+            // Update the selectedOptions array with the value of the selected option
+            const value = selectedOption.getAttribute('data-value');
+            const index = selectedOptions.findIndex(item => item.section === sectionId);
+            if (index !== -1) {
+                selectedOptions[index].value = value;  // Update existing entry
+            } else {
+                selectedOptions.push(value);  // Add new selection
+            }
+        }
+        console.log(selectedOptions);
+    }
+
+    // Add event listeners for all options
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => option.addEventListener('click', toggleSelection));
+
+    document.getElementById('submit').addEventListener('click', () => {
+        // console.log("Selected Options:", selectedOptions);
+        request_data = {
+            "user_calendar_events": calendarData,
+            "user_information": {
+                "User_location": {
+                    "latitude": latitude,
+                    "longitude": longitude
+                },
+                "Interests": selectedOptions
+            }
+        }
+        const decodedToken = decodeJWT(idToken);
+        console.log("Decoded Token: ", decodedToken);
+
+        // Store the decoded token in localStorage
+        localStorage.setItem('email', decodedToken['email']);
+        
+        localStorage.setItem('user_interests', JSON.stringify(selectedOptions));
+        console.log(selectedOptions)
+        console.log(request_data)
+        const response = fetch('http://localhost:8000/recommend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request_data)
+        }).then(response=>{
+            return response.json()
+        }).then(data=>{
+            console.log(data)
+            localStorage.setItem('recommendedEvents', JSON.stringify(data));
+            window.location.href = "http://localhost:8000/index";
+
+        });
+
+    });
+});
+
+function fetchCalendarData(token) {
+    const now = new Date();
+    const twoWeeksLater = new Date();
+    twoWeeksLater.setDate(now.getDate() + 14); // Add 14 days to the current date
+
+    const timeMin = now.toISOString();
+    const timeMax = twoWeeksLater.toISOString();
+
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}`, {
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Calendar Data:', data);
+        events = data.items;
+        events.forEach(event => {
+            const eventData = {
+                summary: event.summary || "",
+                start_datetime: event.start?.dateTime || "",
+                end_datetime: event.end?.dateTime || "",
+                html_link: event.htmlLink || ""
+            };
+            calendarData.push(eventData);
+        });
+        console.log(calendarData)
+        // displayCalendarEvents(data.items);
+    })
+    .catch(error => {
+        console.error('Error fetching calendar data:', error);
+    });
+}
+function decodeJWT(token) {
+    const base64Url = token.split('.')[1]; // JWT token is in 3 parts
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); // Decode URL-safe base64
+    const decoded = JSON.parse(atob(base64)); // Decode and parse the payload
+    return decoded;
+}
+
+
+// function displayCalendarEvents(events) {
+//     const calendarDataDiv = document.getElementById("calendar-data");
+//     calendarDataDiv.innerHTML = ""; // Clear previous data
+
+//     if (events && events.length > 0) {
+//         console.log(events);
+//     } else {
+//         calendarDataDiv.innerHTML = "<p>No events found for the next two weeks.</p>";
+//     }
+// }
+
+function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                latitude = 34.8705;
+                longitude = -111.7620;
+                console.log(`User's location: Latitude: ${latitude}, Longitude: ${longitude}`);
+            },
+            function(error) {
+                console.error('Error getting location:', error);
+                alert('Could not get your location.');
+            }
+        );
+    } else {
+        console.error('Geolocation is not supported by this browser.');
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+
+  </script>
+  
+  <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="logo">
+        <h1>Bike<span>Buddy</span></h1>
+    </div>
+</header>
+  <div class="container">
+
+  <!-- Type of biking? -->
+  <section class="section" id="biking-type">
+    <h2>What type of biking do you like?</h2>
+    <div class="options">
+      <div class="option" data-value="Road biking"><p>Road biking</p></div>
+      <div class="option" data-value="Gravel biking"><p>Gravel biking</p></div>
+      <div class="option" data-value="Endurance rides"><p>Endurance rides</p></div>
+    </div>
+  </section>
+
+  <!-- Event Format? -->
+  <section class="section" id="event-format">
+    <h2>Which event formats are you interested in?</h2>
+    <div class="options">
+      <div class="option" data-value="Multi-day tours"><p>Multi-day tours</p></div>
+      <div class="option" data-value="Races"><p>Races</p></div>
+      <div class="option" data-value="Fun rides"><p>Fun rides (e.g., charity rides, community rides)</p></div>
+      <div class="option" data-value="Competitive events"><p>Competitive events</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="event-format">
+    <h2>What are your riding goals?</h2>
+    <div class="options">
+      <div class="option" data-value="Fitness and training"><p>Fitness and training</p></div>
+      <div class="option" data-value="Socializing and networking"><p>Socializing and networking</p></div>
+      <div class="option" data-value="Exploring new places"><p>Exploring new places</p></div>
+      <div class="option" data-value="Competing in races"><p>Competing in races</p></div>
+    </div>
+  </section>
+
+  <!-- Route Preferences? -->
+  <section class="section" id="route-preferences">
+    <h2>What type of routes do you prefer?</h2>
+    <div class="options">
+      <div class="option" data-value="Short-distance routes"><p>Short-distance routes (10-20 miles)</p></div>
+      <div class="option" data-value="Challenging climbs"><p>Challenging climbs</p></div>
+      <div class="option" data-value="Scenic routes"><p>Scenic routes</p></div>
+    </div>
+  </section>
+
+    <button id="submit" class="cta-button">Save & Continue</button>
+  </div>
+</body>
+</html>

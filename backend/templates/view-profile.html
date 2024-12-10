@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- <link rel="stylesheet" href="./css/navbar.css"> -->
+  <link rel="stylesheet" href="{{ url_for('static', path='css/navbar.css') }}">
+  <!-- <link rel="stylesheet" href="./css/view-profile.css"> -->
+  <link rel="stylesheet" href="{{ url_for('static', path='css/view-profile.css') }}">
+  <title>View Profile</title>
+  <!-- <link rel="stylesheet" href="assets/styles.css" /> -->
+  <!-- <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}"> -->
+</head>
+
+<body>
+<!-- Container to dynamically load the navbar -->
+<div id="navbar-container"></div>
+  
+    <script>
+        function toggleDropdown() {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            if (dropdownMenu.classList.contains("show")) {
+            dropdownMenu.classList.remove("show");
+            } else {
+            dropdownMenu.classList.add("show");
+            }
+        }
+
+        window.onclick = function(event) {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            if (!event.target.matches('.profile-icon')) {
+            if (dropdownMenu.classList.contains("show")) {
+                dropdownMenu.classList.remove("show");
+            }
+            }
+        };
+    </script>
+        
+    <script>
+        fetch('./navbar')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('navbar-container').innerHTML = html;
+            })
+            .catch(err => console.log('Error loading navbar:', err));
+    </script>
+  <div class="container">
+    <!-- Page Heading -->
+    <h1 class="page-title">User Profile</h1>
+
+    <!-- Profile Info Section -->
+    <div class="profile-container">
+      <p><strong>Email:</strong> <span id="user-email"></span></p>
+      <p><strong>Interests:</strong></p>
+      <div class="interests-container" id="user-interests"></div>
+    </div>
+  </div>
+
+  <script>
+    // Function to render user profile data
+    function renderUserProfile() {
+      const userEmail = localStorage.getItem("email") || "Not provided";
+      const userInterests = JSON.parse(localStorage.getItem("user_interests")) || [];
+
+      document.getElementById("user-email").textContent = userEmail;
+
+      const interestsContainer = document.getElementById("user-interests");
+
+      if (userInterests.length) {
+        userInterests.forEach((interest) => {
+          const tag = document.createElement("div");
+          tag.classList.add("interest-tag");
+          tag.textContent = interest;
+          interestsContainer.appendChild(tag);
+        });
+      } else {
+        interestsContainer.textContent = "No interests set.";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", renderUserProfile);
+  </script>
+</body>
+</html>

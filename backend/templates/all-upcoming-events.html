@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/navbar.css') }}">
+    <title>Event Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Styling for the H1 heading */
+        h1 {
+            font-size: 2.5rem; /* Adjust font size as needed */
+            font-style: italic; /* Makes the font italic */
+            font-weight: bold; /* Makes the text bold */
+            color: #333; /* Adjust color for better visibility */
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 23%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .card .content {
+            padding: 15px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<!-- Container to dynamically load the navbar -->
+<div id="navbar-container"></div>
+  
+    <script>
+        function toggleDropdown() {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            if (dropdownMenu.classList.contains("show")) {
+            dropdownMenu.classList.remove("show");
+            } else {
+            dropdownMenu.classList.add("show");
+            }
+        }
+
+        window.onclick = function(event) {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            if (!event.target.matches('.profile-icon')) {
+            if (dropdownMenu.classList.contains("show")) {
+                dropdownMenu.classList.remove("show");
+            }
+            }
+        };
+    </script>
+        
+    <script>
+        fetch('./navbar')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('navbar-container').innerHTML = html;
+            })
+            .catch(err => console.log('Error loading navbar:', err));
+    </script>
+
+    <div class="container">
+        <!-- Recommended Events Section -->
+        <section>
+            <h1 style="text-align: center; margin-bottom: 30px;">Upcomming Events</h1>
+            <div id="card-container" class="card-container"></div>
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </div>
+    
+
+    <script>
+        const events = JSON.parse(localStorage.getItem('upcomming_events'));
+        
+
+        const itemsPerPage = 16;
+        let currentPage = 1;
+
+        function renderEvents() {
+            const container = document.getElementById('card-container');
+            container.innerHTML = '';
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = Math.min(start + itemsPerPage, events.length);
+
+            for (let i = start; i < end; i++) {
+                const event = events[i];
+                console.log(event)
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="/static/images/Gentle slopes and easy terrain.jpg" alt="${event.event.name}">
+                    <div class="content">
+                        <h3>${event.event.name}</h3>
+                        <p style="font-style: italic;">${event.event.location}</p>
+                        <p>${event.event.date}</p>
+                    </div>
+                `;
+                card.onclick = () => {
+                    window.open(events[i].registration.link, '_blank');
+                };
+                container.appendChild(card);
+            }
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            const totalPages = Math.ceil(events.length / itemsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.disabled = i === currentPage;
+                button.onclick = () => {
+                    currentPage = i;
+                    renderEvents();
+                    renderPagination();
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        // Initial render
+        renderEvents();
+        renderPagination();
+    </script>
+</body>
+</html>

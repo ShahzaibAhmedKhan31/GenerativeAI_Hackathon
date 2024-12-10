@@ -35,7 +35,7 @@ def recommendEvents(biking_events, user_calendar_events, user_information):
             "Calendar_Availability": user_calendar_events,
             "User_Information": user_information
         })
-
+        print(result)
         # Serialize the result and match events
         serialize_output = SerializeOutput_Groq(result)
         events = matchedEvents(biking_events, serialize_output)
