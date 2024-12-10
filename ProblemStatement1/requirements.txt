@@ -6,3 +6,4 @@ groq
 python-dotenv
 langchain
 langchain_community
+jinja2
