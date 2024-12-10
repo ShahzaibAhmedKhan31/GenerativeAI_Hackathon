@@ -6,6 +6,13 @@ import json
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 import httpx
+import os
+
+from dotenv import load_dotenv
+
+# load environment file
+load_dotenv()
+
 
 # Define the router
 recommend_router = APIRouter()
@@ -42,9 +49,9 @@ async def recommend_events(request: RecommendationRequest):
 templates = Jinja2Templates(directory="templates")
 
 # Google OAuth credentials
-CLIENT_ID = '293669075197-t2crsfd0vfvm12e3ptujplpaoa3dg9i3.apps.googleusercontent.com'
-CLIENT_SECRET = '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'
-REDIRECT_URI = 'http://localhost:8000/auth'  # Updated port to 8000 for FastAPI
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+REDIRECT_URI = os.getenv("REDIRECT_URI")
 
 @recommend_router.get("/home")
 async def frontend(request: Request, access_token: str = None, id_token: str = None):

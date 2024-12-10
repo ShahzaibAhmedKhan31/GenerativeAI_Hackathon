@@ -26,9 +26,7 @@ def recommendEvents(biking_events, user_calendar_events, user_information):
             input_variables=["Upcomming_Biking_Events", "Calendar_Availability", "User_Information"],
             template=Openai_prompt,
         ))
-        # print(biking_events)
-        # print(user_calendar_events)
-        # print(user_information)
+
         # Run the chain with inputs
         result = chain.run({
             "Upcomming_Biking_Events": biking_events,
